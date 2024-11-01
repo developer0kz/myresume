@@ -1,0 +1,67 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+
+# Создание диаграммы
+fig, ax = plt.subplots(figsize=(15, 10))
+
+# Список сущностей и их атрибутов
+entities = {
+    "Patients": ["PatientID (PK)", "FullName", "Gender", "DateOfBirth", "AdmissionDate", "DischargeDate", "WardID (FK)"],
+    "Departments": ["DepartmentID (PK)", "DepartmentName", "Capacity", "HeadDoctor"],
+    "Wards": ["WardID (PK)", "DepartmentID (FK)", "RoomNumber", "Capacity", "Gender"],
+    "Treatments": ["TreatmentID (PK)", "PatientID (FK)", "TreatmentName", "TreatmentDate", "DoctorID (FK)"],
+    "Doctors": ["DoctorID (PK)", "FullName", "Specialization"],
+    "Operations": ["OperationID (PK)", "PatientID (FK)", "OperationName", "OperationDate"],
+    "Payments": ["PaymentID (PK)", "PatientID (FK)", "ServiceName", "Amount", "PaymentDate"],
+    "RoomsAvailability": ["WardID (PK, FK)", "AvailableSpots"],
+    "DischargedPatients": ["DischargeID (PK)", "PatientID (FK)", "DischargeDate", "Outcome"],
+    "AverageStayDuration": ["DepartmentID (PK, FK)", "AverageStay"],
+}
+
+# Позиции для каждой сущности
+positions = {
+    "Patients": (0, 8),
+    "Departments": (0, 0),
+    "Wards": (4, 8),
+    "Treatments": (8, 8),
+    "Doctors": (8, 6),
+    "Operations": (8, 4),
+    "Payments": (8, 2),
+    "RoomsAvailability": (4, 0),
+    "DischargedPatients": (4, 6),
+    "AverageStayDuration": (0, 2),
+}
+
+# Рисуем каждую сущность
+for entity, attrs in entities.items():
+    x, y = positions[entity]
+    ax.add_patch(mpatches.FancyBboxPatch((x, y), 2, 2, boxstyle="round,pad=0.1", ec="black", fc="lightgrey"))
+    ax.text(x + 0.1, y + 1.8, entity, fontsize=12, fontweight='bold')
+    for i, attr in enumerate(attrs):
+        ax.text(x + 0.1, y + 1.5 - i * 0.3, attr, fontsize=10)
+
+# Добавляем связи между сущностями
+connections = [
+    ("Patients", "Wards"),
+    ("Departments", "Wards"),
+    ("Patients", "Treatments"),
+    ("Patients", "Operations"),
+    ("Patients", "Payments"),
+    ("Wards", "RoomsAvailability"),
+    ("Doctors", "Treatments"),
+    ("DischargedPatients", "Patients"),
+    ("Departments", "AverageStayDuration"),
+]
+
+for start, end in connections:
+    start_x, start_y = positions[start]
+    end_x, end_y = positions[end]
+    ax.annotate("", xy=(end_x + 1, end_y + 1), xycoords='data', xytext=(start_x + 1, start_y + 1), textcoords='data',
+                arrowprops=dict(arrowstyle="->", lw=1.5))
+
+# Настройки отображения
+ax.set_xlim(-1, 10)
+ax.set_ylim(-1, 10)
+ax.axis('off')  # Убираем оси
+plt.title("ER-диаграмма для базы данных больницы", fontsize=150)
+plt.show()
